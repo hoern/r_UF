@@ -4,7 +4,6 @@
 ## RequiredDeps: oUF
 ## X-Category: UnitFrame
 
-libs/oUF/oUF.xml
 config.lua
-libs.lua
+util.lua
 core.lua
