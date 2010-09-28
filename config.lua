@@ -1,8 +1,6 @@
 local addon, ns = ...
 local cfg = CreateFrame("Frame")
 
-ns.oUF = embedoUF
-
 cfg.statusbar_texture =      [[Interface\AddOns\r_UF\p\Armory]]
 cfg.backdrop_texture = 	     [[Interface\AddOns\r_UF\p\Armory]]
 cfg.backdrop_edge_texture =  [[Interface\AddOns\r_UF\p\Armory]]

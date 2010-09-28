@@ -1,7 +1,6 @@
 local addon, ns = ...
 local cfg = ns.cfg
 local util = ns.util
-local oUF = ns.oUF
 
 local function genStyle(self)
   util.init(self)

@@ -1,7 +1,6 @@
 local addon, ns = ...
 local cfg = ns.cfg
 local util = CreateFrame("Frame")
-local oUF = ns.oUF
 
 local backdrop_tab = {
   bgFile = cfg.backdrop_texture,
