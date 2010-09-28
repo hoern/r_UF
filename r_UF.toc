@@ -1,0 +1,10 @@
+## Interface: 40000
+## Title: |cFF006699ristretto|r Unit Frames
+## Description: Changes to the default Unit Frames (oUF version)
+## RequiredDeps: oUF
+## X-Category: UnitFrame
+
+libs/oUF/oUF.xml
+config.lua
+libs.lua
+core.lua
