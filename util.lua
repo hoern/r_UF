@@ -7,19 +7,19 @@ local backdrop_tab = {
   edgeFile = cfg.backdrop_edge_texture,
   tile = false,
   tileSize = 0,
-  edgeSize = 5,
+  edgeSize = 3,
   insets = {
-    left = 5,
-    right = 5,
-    top = 5,
-    bottom = 5,
+    left = 3,
+    right = 3,
+    top = 3,
+    bottom = 3,
   },
 }
 
 util.gen_backdrop = function(f)
   f:SetBackdrop(backdrop_tab);
-  f:SetBackdropColor(0,0,0,0.7)
-  f:SetBackdropBorderColor(0,0,0,1)
+  f:SetBackdropColor(0,0,0,1)
+  f:SetBackdropBorderColor(0,0,0,0.9)
 end
 
 util.menu = function(self)
@@ -29,22 +29,6 @@ util.menu = function(self)
     ToggleDropDownMenu(1, nil, _G["PartyMemberFrame"..self.id.."DropDown"], "cursor", 0, 0)
   elseif(_G[cunit.."FrameDropDown"]) then
     ToggleDropDownMenu(1, nil, _G[cunit.."FrameDropDown"], "cursor", 0, 0)
-  end
-end
-
---moveme func
-util.moveme = function(f)
-  if cfg.allow_frame_movement then
-    f:SetMovable(true)
-    f:SetUserPlaced(true)
-    if not cfg.frames_locked then
-      f:EnableMouse(true)
-      f:RegisterForDrag("LeftButton","RightButton")
-      f:SetScript("OnDragStart", function(self) if IsAltKeyDown() and IsShiftKeyDown() then self:StartMoving() end end)
-      f:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-    end
-  else
-    f:IsUserPlaced(false)
   end
 end
 
@@ -90,6 +74,13 @@ util.gen_hpbar = function(f)
   b:SetAllPoints(s)
   f.Health = s
   f.Health.bg = b
+
+  if IsAddOnLoaded("oUF_CombatFeedback") and (f.mystyle == "player" or f.mystyle == "target") then
+    local cbft = s:CreateFontString(nil, "OVERLAY")
+    cbft:SetPoint("CENTER", f, "CENTER")
+    cbft:SetFontObject(SystemFont_Shadow_Huge1)
+    f.CombatFeedbackText = cbft
+  end
 end
 
 --gen hp strings func
@@ -112,7 +103,7 @@ end
 util.gen_ppbar = function(f)
   --statusbar
   local s = CreateFrame("StatusBar", nil, f)
-  s:SetHeight(f.height/5)
+  s:SetHeight(f.height/3)
   s:SetWidth(f.width)
   s:SetPoint("TOP",f,"BOTTOM",0,-3)
   s:SetStatusBarTexture(cfg.statusbar_texture)
@@ -131,94 +122,6 @@ util.gen_ppbar = function(f)
   f.Power.bg = b
 end
 
---gen castbar
-util.gen_castbar = function(f)
-
-  local s = CreateFrame("StatusBar", "oUF_SimpleCastbar"..f.mystyle, f)
-  s:SetHeight(f.height)
-  s:SetWidth(f.width)
-  if f.mystyle == "player" then
-    util.moveme(s)
-    s:SetPoint("CENTER",UIParent,0,-50)
-  elseif f.mystyle == "target" then
-    util.moveme(s)
-    s:SetPoint("CENTER",UIParent,0,0)
-  else
-    s:SetPoint("BOTTOM",f,"TOP",0,5)
-  end
-  s:SetStatusBarTexture(cfg.statusbar_texture)
-  s:GetStatusBarTexture():SetHorizTile(true)
-  s:SetStatusBarColor(1,0.8,0,1)
-  --helper
-  local h = CreateFrame("Frame", nil, s)
-  h:SetFrameLevel(0)
-  h:SetPoint("TOPLEFT",-5,5)
-  h:SetPoint("BOTTOMRIGHT",5,-5)
-  util.gen_backdrop(h)
-
-  local b = s:CreateTexture(nil, "BACKGROUND")
-  b:SetTexture(cfg.statusbar_texture)
-  b:SetAllPoints(s)
-  b:SetVertexColor(1*0.3,0.8*0.3,0,0.7)
-
-  local txt = util.gen_fontstring(s, cfg.font, 13, "THINOUTLINE")
-  txt:SetPoint("LEFT", 2, 0)
-  txt:SetJustifyH("LEFT")
-  --time
-  local t = util.gen_fontstring(s, cfg.font, 13, "THINOUTLINE")
-  t:SetPoint("RIGHT", -2, 0)
-  txt:SetPoint("RIGHT", t, "LEFT", -5, 0)
-
-  --icon
-  local i = s:CreateTexture(nil, "ARTWORK")
-  i:SetWidth(f.height)
-  i:SetHeight(f.height)
-  i:SetPoint("RIGHT", s, "LEFT", -5, 0)
-  i:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-
-  --helper2 for icon
-  local h2 = CreateFrame("Frame", nil, s)
-  h2:SetFrameLevel(0)
-  h2:SetPoint("TOPLEFT",i,"TOPLEFT",-5,5)
-  h2:SetPoint("BOTTOMRIGHT",i,"BOTTOMRIGHT",5,-5)
-  util.gen_backdrop(h2)
-
-  if f.mystyle == "player" then
-    --latency only for player unit
-    local z = s:CreateTexture(nil,"OVERLAY")
-    z:SetTexture(cfg.statusbar_texture)
-    z:SetVertexColor(0.6,0,0,0.6)
-    z:SetPoint("TOPRIGHT")
-    z:SetPoint("BOTTOMRIGHT")
-    s.SafeZone = z
-  end
-
-  f.Castbar = s
-  f.Castbar.Text = txt
-  f.Castbar.Time = t
-  f.Castbar.Icon = i
-end
-
-util.gen_portrait = function(f)
-  local p = CreateFrame("PlayerModel", nil, f)
-  p:SetWidth(f.height*3)
-  p:SetHeight(f.height*2)
-  if f.mystyle == "target" then
-    p:SetPoint("TOPLEFT", f, "TOPRIGHT", 5, 0)
-  else
-    p:SetPoint("TOPRIGHT", f, "TOPLEFT", -5, 0)
-  end
-
-  --helper
-  local h = CreateFrame("Frame", nil, p)
-  h:SetFrameLevel(0)
-  h:SetPoint("TOPLEFT",-5,5)
-  h:SetPoint("BOTTOMRIGHT",5,-5)
-  util.gen_backdrop(h)
-
-  f.Portrait = p
-end
-
 util.PostCreateIcon = function(self, button)
   button.cd:SetReverse()
   button.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -234,29 +137,6 @@ util.PostCreateIcon = function(self, button)
   h:SetPoint("TOPLEFT",-5,5)
   h:SetPoint("BOTTOMRIGHT",5,-5)
   util.gen_backdrop(h)
-end
-
-util.createBuffs = function(f)
-  b = CreateFrame("Frame", nil, f)
-  b.size = 20
-  if f.mystyle == "target" then
-    b.num = 40
-  elseif f.mystyle == "player" then
-    b.num = 10
-    b.onlyShowPlayer = true
-  else
-    b.num = 5
-  end
-  b.spacing = 5
-  b.onlyShowPlayer = false
-  b:SetHeight((b.size+b.spacing)*4)
-  b:SetWidth(f.width)
-  b:SetPoint("BOTTOMLEFT", f, "TOPLEFT", 0, 5)
-  b.initialAnchor = "BOTTOMLEFT"
-  b["growth-x"] = "RIGHT"
-  b["growth-y"] = "UP"
-  b.PostCreateIcon = util.PostCreateIcon
-  f.Buffs = b
 end
 
 util.createDebuffs = function(f)
@@ -281,5 +161,23 @@ util.createDebuffs = function(f)
   f.Debuffs = b
 end
 
+util.DruidManaOnUpdate = function(self)
+  if self.mystyle ~= 'player' then return end
+  if string.upper(select(2, UnitClass('player'))) ~= "DRUID" then return end
+  local _,p = UnitPowerType('player')
 
-ns.lib = lib
+  if p ~= "MANA" then
+    local min,max = UnitPower('player', SPELL_POWER_MANA), UnitPowerMax('player', SPELL_POWER_MANA)
+    self.DruidMana:SetMinMaxValues(0, max)
+    self.DruidMana:SetValue(min)
+    self.DruidMana:SetAlpha(1)
+    local mymana = util.gen_fontstring(self.DruidMana, cfg.font, 11, "THINOUTLINE")
+    mymana:SetPoint("CENTER", self.DruidMana, "CENTER", 0, 0)
+    local min,max = UnitPower('player', SPELL_POWER_MANA), UnitPowerMax('player', SPELL_POWER_MANA)
+    mymana:SetText(format("%s/%s", min, max))
+  else
+    self.DruidMana:SetAlpha(0)
+  end
+end
+
+ns.util = util
